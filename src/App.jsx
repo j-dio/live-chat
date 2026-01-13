@@ -4,6 +4,8 @@ import "./App.css";
 
 function App() {
   const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState("");
+  const [username, serUsername] = useState("Anon");
 
   async function getMessages() {
     const { data, error } = await supabase
@@ -13,6 +15,18 @@ function App() {
 
     if (error) console.log("Error fetching history:", error);
     else setMessages(data);
+  }
+
+  async function sendMessages() {
+    if (!newMessage) return;
+
+    // we only INSERT. we do not fetch afterwards
+    // the realtime listener will catch the echo
+    await supabase
+      .from('messages')
+      .insert([{ content: newMessage, username: username }])
+
+    setNewMessage("");  
   }
 
   useEffect(() => {
@@ -44,9 +58,6 @@ function App() {
     };
   }, []);
 
-
-
-  
   return <></>;
 }
 
