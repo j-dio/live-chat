@@ -5,7 +5,7 @@ import "./App.css";
 function App() {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
-  const [username, serUsername] = useState("Anon");
+  const [username, setUsername] = useState("Anon");
 
   async function getMessages() {
     const { data, error } = await supabase
@@ -17,7 +17,7 @@ function App() {
     else setMessages(data);
   }
 
-  async function sendMessages() {
+  async function sendMessage() {
     if (!newMessage) return;
 
     // we only INSERT. we do not fetch afterwards
@@ -58,7 +58,39 @@ function App() {
     };
   }, []);
 
-  return <></>;
+  return (
+    <div className="chat-container">
+      <h1>Live Chat</h1>
+
+      <div className="username-input">
+        <label>Username: </label>
+        <input
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
+      </div>
+
+      <div className="chat-window">
+        {messages.map((msg) => (
+          <div key={msg.id} className="message-bubble">
+            <strong>{msg.username}: </strong>
+            <span>{msg.content}</span>
+          </div>
+        ))}
+      </div>
+
+      <div className="chat-input">
+        <input
+          type="text"
+          placeholder="Type a message..."
+          value={newMessage}
+          onChange={(e) => setNewMessage(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+        />
+        <button onClick={sendMessage}>Send</button>
+      </div>
+    </div>
+  );
 }
 
 export default App;
