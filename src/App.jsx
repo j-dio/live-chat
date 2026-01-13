@@ -5,9 +5,21 @@ import "./App.css";
 function App() {
   const [messages, setMessages] = useState([]);
 
+  async function getMessages() {
+    const { data, error } = await supabase
+      .from("messages")
+      .select("*")
+      .order("created_at", { ascending: true }); // oldest first, then newest
+
+    if (error) console.log("Error fetching history:", error);
+    else setMessages(data);
+  }
+
   useEffect(() => {
     // fetch initial history (so screen isn't empty)
-    // getMessages()
+    (async () => {
+      await getMessages();
+    })();
 
     // realtime listener for new messages
     const channel = supabase
@@ -23,8 +35,18 @@ function App() {
           // ACTION: add to our state
           setMessages((prevMessages) => [...prevMessages, newRow]);
         }
-      );
-  });
+      )
+      .subscribe();
+
+    // cleanup: turn off the radio when we leave the page
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+
+
+  
   return <></>;
 }
 
